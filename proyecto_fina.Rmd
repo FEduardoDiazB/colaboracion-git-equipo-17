@@ -1,0 +1,18 @@
+---
+title: "Proyecto final módulo 1"
+author: "Equipo - 17"
+output: html_document
+---
+
+# Integrantes:
+
++ Francisco Eduardo Díaz Barrios. Rol: Administrador
++ Integrante 2. Rol: Colaborador 1
++ Integrante 3. Rol: Colaborador 2
+
+```{r}
+library(dplyr)
+library(readr)
+library(ggplot2)
+
+mis_datos <- readr::read_csv("datos_proyecto.csv")

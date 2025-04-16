@@ -12,10 +12,17 @@ output: html_document
 
 
 ```{r}
+install.packages("paletteer")
+```
+
+```{r}
 library(dplyr)
 library(readr)
 library(ggplot2)
+library(paletteer)
+```
 
+```{r}
 mis_datos <- readr::read_csv("datos_proyecto.csv")
 ```
 
@@ -63,14 +70,24 @@ mis_datos %>%
             cor_xy = cor(x,y,method = 'pearson'))
 ```
 
+### Instrucciones Admin:
 
+Desde su máquina crear chunks de código R en el archivo "proyecto_final.Rmd" (que obtuvo del Administrador) que trafiquen con ggplot las parejas de valores (x,y) DE CADA SUBCONJUNTO. Hacer commit y push del código al repositorio del administrador y revisar los pull requests de los colaboradores 1 y 2.
 
+```{r}
+mis_datos <- mis_datos %>% mutate(subconjunto_g = as.character(subconjunto))
+```
 
-
-
-
-
-
-
+```{r}
+mis_datos %>% ggplot(aes(x=x, y=y, color=subconjunto_g)) +
+  geom_point(size=0.5) +
+  facet_wrap(~ subconjunto_g)+
+  scale_color_paletteer_d("palettetown::armaldo")+
+  labs(x = element_blank(), y = element_blank()) +
+  theme_minimal() + 
+  theme(legend.position="none",
+        axis.text = element_blank())
+#ggsave("proyecto_final_modulo1_p1_e17.pdf", width = 8, height = 8)
+```
 
 

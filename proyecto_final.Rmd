@@ -19,5 +19,12 @@ mis_datos <- readr::read_csv("datos_proyecto.csv")
 ```
 
 ```{r}
-mis_datos
+mis_datos %>% 
+  dplyr::group_by(subconjunto) %>% 
+  dplyr::summarise(media_x = mean(x), 
+            media_y = mean(y),
+            dev_est_x = sd(x),
+            dev_est_y = sd(y),
+            cor_xy = cor(x,y,method = 'pearson'))
 ```
+

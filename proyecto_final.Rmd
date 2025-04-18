@@ -7,8 +7,8 @@ output: html_document
 # Integrantes:
 
 + Francisco Eduardo Díaz Barrios. Rol: Administrador
-+ Integrante 2. Rol: Colaborador 1
-+ Integrante 3. Rol: Colaborador 2
++ Erick Muñiz Morales. Rol: Colaborador 1 
++ Hendrix Roberto Olvera Barbecho. Rol: Colaborador 2
 
 ```{r}
 library(dplyr)
@@ -16,3 +16,8 @@ library(readr)
 library(ggplot2)
 
 mis_datos <- readr::read_csv("datos_proyecto.csv")
+```
+
+```{r}
+mis_datos
+```

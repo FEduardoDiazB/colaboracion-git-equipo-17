@@ -393,3 +393,236 @@ recaudaciones respecto a si es internacional o nacional.
 
 Sin embargo, del mismo gráfico, podemos ver que, en general, siempre se obtuvo una 
 mayor recaudación internacional que nacional. 
+
+
+# Subsección 2
+
+## Librerias
+
+```{r}
+library(dplyr)
+library(fivethirtyeight)
+library(ggplot2)
+```
+
+## Datos
+
+```{r}
+datos <- fivethirtyeight::airline_safety
+
+datos |> head()
+```
+
+# Actividad 1
+
+Con funciones de la librería {dplyr} para obtener el número total de incidentes, número total de accidentes fatales y el número total de muertes en el periodo de 1985 a 2014.
+
+```{r}
+datos %>% summarise(incidentes_1 = sum(incidents_85_99 +incidents_00_14))
+```
+
+```{r}
+datos %>% summarise(accidentes_1 = sum(fatal_accidents_85_99 + fatal_accidents_00_14))
+```
+
+```{r}
+datos %>% summarise(fallecimientos_1 = sum(fatalities_85_99 + fatalities_00_14))
+```
+
+# Actividad 2
+
+Obtenga las 10 aerolíneas que han tenido el mayor número de incidentes. Haga una visualización que permita identificar a éstas. ¿Hay algún cambio en este top 10 antes y después del año 2000?
+
+El número de incidentes disminuye radicalmente después del año 2000, el orden del top cambia, ademas de tener nuevas aerolineas y otras desaparecen.
+
+```{r}
+datos %>% group_by(airline) %>%  
+  summarise(incidentes_tot = sum(incidents_85_99 +incidents_00_14)) %>% 
+  slice_max(n = 10, order_by = incidentes_tot, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  summarise(incidentes_85_99 = sum(incidents_85_99)) %>% 
+  slice_max(n = 10, order_by = incidentes_85_99, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  summarise(incidentes_00_14 = sum(incidents_00_14)) %>% 
+  slice_max(n = 10, order_by = incidentes_00_14, with_ties = TRUE)
+```
+
+```{r}
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(incidentes_tot = sum(incidents_85_99 +incidents_00_14)) %>% 
+  slice_max(n = 10, order_by = incidentes_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = incidentes_tot), stat = "identity", fill="#FF9999") + 
+  labs(title = "Incidentes mayores totales", x = "Aerolineas", y = "Incidentes") + 
+  theme(plot.title.position = "plot")
+
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(incidentes_tot = sum(incidents_85_99)) %>% 
+  slice_max(n = 10, order_by = incidentes_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = incidentes_tot), stat = "identity", fill="#FF1079") + 
+  labs(title = "Incidentes 1985-1999", x = "Aerolineas", y = "Incidentes") + 
+  theme(plot.title.position = "plot")
+
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(incidentes_tot = sum(incidents_00_14)) %>% 
+  slice_max(n = 10, order_by = incidentes_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = incidentes_tot), stat = "identity", fill="#AA2089") + 
+  labs(title = "Incidentes 2000-2014", x = "Aerolineas", y = "Incidentes") + 
+  theme(plot.title.position = "plot")
+```
+
+# Actividad 3
+
+Obtenga las 10 aerolíneas que han tenido el menor número de incidentes. Haga una visualización que permita identificar a éstas. ¿Hay algún cambio en este top 10 antes y después del año 2000?
+
+Después del año 2000 en el top solo se tiene una aerolinea con un incidente, fuera de eso las demas no tienen incidentes, antes de dicho año solo tres aerolineas tienen cero incidentes.
+
+Solo aerolineas se mantienen en el top, de estas tres, todas menos Virgin Atlantic se mantienen con cero incidentes.
+
+```{r}
+datos %>% group_by(airline) %>%  
+  summarise(incidentes_tot = sum(incidents_85_99 +incidents_00_14)) %>% 
+  slice_min(n = 10, order_by = incidentes_tot, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  summarise(incidentes_85_99 = sum(incidents_85_99)) %>% 
+  slice_min(n = 10, order_by = incidentes_85_99, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  summarise(incidentes_00_14 = sum(incidents_00_14)) %>% 
+  slice_min(n = 10, order_by = incidentes_00_14, with_ties = TRUE)
+```
+
+```{r}
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(incidentes_tot = sum(incidents_85_99 +incidents_00_14)) %>% 
+  slice_min(n = 10, order_by = incidentes_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = incidentes_tot), stat = "identity", fill="#458B00") + 
+  labs(title = "Incidentes min Totales", x = "Aerolineas", y = "Incidentes") + 
+  theme(plot.title.position = "plot")
+
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(incidentes_tot = sum(incidents_85_99)) %>% 
+  slice_min(n = 10, order_by = incidentes_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = incidentes_tot), stat = "identity", fill="#66CD00") + 
+  labs(title = "Incidentes 1985-1999", x = "Aerolineas", y = "Incidentes") + 
+  theme(plot.title.position = "plot")
+
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(incidentes_tot = sum(incidents_85_99)) %>% 
+  slice_min(n = 10, order_by = incidentes_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = incidentes_tot), stat = "identity", fill="#9BCD9B") + 
+  labs(title = "Incidentes 2000-2014", x = "Aerolineas", y = "Incidentes") + 
+  theme(plot.title.position = "plot")
+```
+
+# Actividad 4
+
+Obtenga las 10 aerolíneas que han tenido el mayor número de muertes. Haga una visualización que permita identificar a éstas. ¿Hay algún cambio en este top 10 antes y después del año 2000?
+
+Después del año 2000 se tiene una disminución de fallecimientos, el orden e integrantes del top cambio como con los anteriores.
+
+```{r}
+datos %>% group_by(airline) %>%  
+  summarise(fallecimientos_tot = sum(fatalities_85_99 + fatalities_00_14)) %>% 
+  slice_max(n = 10, order_by = fallecimientos_tot, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  summarise(fallecimientos_85_99 = sum(fatalities_85_99)) %>% 
+  slice_max(n = 10, order_by = fallecimientos_85_99, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  summarise(fallecimientos_00_14 = sum(fatalities_00_14)) %>% 
+  slice_max(n = 10, order_by = fallecimientos_00_14, with_ties = TRUE)
+```
+
+```{r}
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(fallecimientos_tot = sum(fatalities_85_99 + fatalities_00_14)) %>% 
+  slice_max(n = 10, order_by = fallecimientos_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = fallecimientos_tot), stat = "identity", fill="#009ACD") + 
+  labs(title = "Fallecimientos mayores Totales", x = "Aerolineas", y = "Fallecimientos") + 
+  theme(plot.title.position = "plot")
+
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(fallecimientos_tot = sum(fatalities_85_99)) %>% 
+  slice_max(n = 10, order_by = fallecimientos_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = fallecimientos_tot), stat = "identity", fill="#00BFFF") + 
+  labs(title = "Fallecimientos 1985-1999", x = "Aerolineas", y = "Fallecimientos") + 
+  theme(plot.title.position = "plot")
+
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(fallecimientos_tot = sum(fatalities_00_14)) %>% 
+  slice_max(n = 10, order_by = fallecimientos_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = fallecimientos_tot), stat = "identity", fill="#1874CD") + 
+  labs(title = "Fallecimientos 2000-2014", x = "Aerolineas", y = "Fallecimientos") + 
+  theme(plot.title.position = "plot")
+```
+
+# Actividad 5
+
+Obtenga las 10 aerolíneas que han tenido el menor número de muertes. Haga una visualización que permita identificar a éstas. ¿Hay algún cambio en este top 10 antes y después del año 2000?
+
+En este top se tuvo lo esperado de cambios, sin embargo todos compartren que el número de fallecimientos es 0, después del año 2000 de 17 aerolineas se paso a 32 con cero fallecimientos, ademas que solo comparten 12 aerolineas en común.
+
+```{r}
+datos %>% group_by(airline) %>%  
+  summarise(fallecimientos_tot = sum(fatalities_85_99 + fatalities_00_14)) %>% 
+  slice_min(n = 10, order_by = fallecimientos_tot, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  summarise(fallecimientos_85_99 = sum(fatalities_85_99)) %>% 
+  slice_min(n = 10, order_by = fallecimientos_85_99, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  summarise(fallecimientos_00_14 = sum(fatalities_00_14)) %>% 
+  slice_min(n = 10, order_by = fallecimientos_00_14, with_ties = TRUE)
+```
+
+```{r}
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(fallecimientos_tot = sum(fatalities_85_99 + fatalities_00_14)) %>% 
+  slice_min(n = 10, order_by = fallecimientos_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = fallecimientos_tot), stat = "identity", fill="#EEAD0E") + 
+  labs(title = "Fallecimientos menores Totales", x = "Aerolineas", y = "Fallecimientos") + 
+  theme(plot.title.position = "plot")
+
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(fallecimientos_tot = sum(fatalities_85_99)) %>% 
+  slice_min(n = 10, order_by = fallecimientos_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = fallecimientos_tot), stat = "identity", fill="#CDAD00") + 
+  labs(title = "Fallecimientos 1985-1999", x = "Aerolineas", y = "Fallecimientos") + 
+  theme(plot.title.position = "plot")
+
+datos %>% 
+  dplyr::group_by(airline) %>% 
+  dplyr::summarise(fallecimientos_tot = sum(fatalities_00_14)) %>% 
+  slice_min(n = 10, order_by = fallecimientos_tot, with_ties = TRUE) %>%
+  ggplot() +
+  geom_bar(aes(y = airline, x = fallecimientos_tot), stat = "identity", fill="#EEB422") + 
+  labs(title = "Fallecimientos 2000-2014", x = "Aerolineas", y = "Fallecimientos") + 
+  theme(plot.title.position = "plot")
+```

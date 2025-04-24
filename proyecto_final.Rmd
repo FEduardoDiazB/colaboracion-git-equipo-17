@@ -26,7 +26,6 @@ library(paletteer)
 mis_datos <- readr::read_csv("datos_proyecto.csv")
 ```
 
-
 ### Instrucciones Colaborador 1: 
 
 Desde su máquina crear chunks de código R en el archivo "proyecto_final.Rmd" (que obtuvo del Administrador) que calculen la media de x, la media de y, la desviación estándar de x, la desviación estándar de y, la correlación de Pearson entre x y y, PARA CADA SUBCONJUNTO, usando ciclos for. Hacer commit y push del código al repositorio del administrador y hacer un pull request.
@@ -90,4 +89,307 @@ mis_datos %>% ggplot(aes(x=x, y=y, color=subconjunto_g)) +
 #ggsave("proyecto_final_modulo1_p1_e17.pdf", width = 8, height = 8)
 ```
 
+# Seccion 2
 
+### Subsección 1 : Prueba de Bechdel
+
+La prueba de Bechdel es un método que se usa para evaluar la representación de las mujeres en películas, series u otras obras narrativas. Para aprobarla, la obra debe cumplir tres criterios: (1) tener al menos dos personajes femeninos con nombre, (2) que estos personajes conversen entre sí en algún momento, y (3) que su diálogo no gire en torno a un hombre (por ejemplo, relaciones románticas o familiares). Fue propuesta por Alison Bechdel, destacando la falta de desarrollo de personajes femeninos en muchas producciones, aunque no mide la calidad ni la igualdad de género de manera exhaustiva.
+
+En dicho dataframe se tienen algunas columnas como:
+
+`budget_2013`: Presupuesto en dólares ajustados a la inflación de 2013
+
+`domgross_2013`: Recaudación nacional (EE.UU.) en dólares ajustados a la inflación de 2013
+
+`intgross_2013`: Recaudación internacional total (es decir, mundial) en dólares a la inflación de 2013
+
+En la columna clean_test encontrará los valores
+
+ok = Pasa la prueba dubious = Se duda si pasa la prueba men = Las mujeres sólo hablan acerca de hombres notalk = Las mujeres no se hablan entre sí nowomen = menos de dos mujeres
+
+#### Actividad 1: Cargue en un objeto de R el contenido del archivo "prueba_bechdel.csv"
+
+```{r}
+library(dplyr)
+datos_bechdel <-readr::read_csv("prueba_bechdel.csv")
+```
+#### Actividad 2: Use alguna de las funciones case_when o if_else de {dplyr} para cambiar los valores de la columna clean_test
+
+```{r}
+datos_bechdel <- datos_bechdel |> 
+  dplyr::mutate(clean_test = dplyr::case_when(clean_test == "ok" ~ "pasa",
+                                              clean_test == "dubious" ~ "dudosamente",
+                                              clean_test == "men" ~ "discurso_hombres",
+                                              clean_test == "notalk" ~ "silencio",
+                                              clean_test == "nowomen" ~ "sin_mujeres",
+                                              TRUE ~ clean_test)) # Safe case en caso de volver a correr este chunk
+
+unique(datos_bechdel$clean_test)
+```
+#### Actividad 3: Use alguna de las funciones case_when o if_else de {dplyr} para cambiar los valores de la columna binary
+
+FAIL -> no_pasa PASS -> si_pasa
+
+
+```{r}
+datos_bechdel <- datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "PASS" ~ "si_pasa",
+                                          binary == "FAIL" ~ "no_pasa",
+                                          TRUE ~ binary)) # Safe case en caso de volver a correr este chunk
+
+unique(datos_bechdel$binary)
+```
+
+#### Actividad 4: Haga una gráfica con funciones de {ggplot2} que muestre la composición de observaciones que sí pasaron y no pasaron la prueba de Bechdel
+
+```{r}
+library(ggplot2)
+
+numero_completo <- function(x) format(x, big.mark = ",", scientific = FALSE)
+
+# Presupuesto 2023 
+datos_bechdel |> 
+  dplyr::mutate(PruebaBechel = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(budget_2013, fill = PruebaBechel) ) + 
+    geom_histogram() +
+     ggtitle("Cantidad de películas según su presupuesto en 2023.") + 
+    labs(fill = "Prueba de Bechel") + 
+    labs(y = "Frecuencia", x = "Presupuesto en dólares") + 
+    scale_x_continuous(labels = numero_completo, transform = "log10")
+```
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(domgross_2013, fill = binary) ) + 
+    geom_histogram() +
+     ggtitle("Cantidad de películas según su \n recaudación nacional (EE.UU.) en 2013.") + 
+    labs(fill = "Prueba de Bechel") + 
+    labs(y = "Frecuencia", x = "Recaudación en dólares") + 
+    scale_x_continuous(labels = numero_completo, transform = "log10")
+```
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(intgross_2013, fill = binary) ) + 
+    geom_histogram() +
+     ggtitle("Histograma: Cantidad de películas según su \n recaudación internacional en 2013.") + 
+    labs(fill = "Prueba de Bechel") + 
+    labs(y = "Frecuencia", x = "Recaudación en dólares") + 
+    scale_x_continuous(labels = numero_completo, transform = "log10")
+```
+
+#### Actividad 5: Haga una gráfica con funciones de {ggplot2} que muestre la composición de observaciones que sí pasaron y no pasaron la prueba de Bechdel, con respecto al año
+
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = year, y = budget_2013, color = binary) ) + 
+    geom_point() +
+     ggtitle("Películas según su presupuesto y año de producción \n ajustado a la inflación en 2013.") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(y = "Prespuesto en dólares", x = "Año") + 
+    scale_y_continuous(labels = numero_completo, transform = "log10")
+```
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = year, y = domgross_2013, color = binary) ) + 
+    geom_point() +
+     ggtitle("Películas según su recaudación nacional (EE.UU.) y año de producción \n ajustado a la inflación de 2013.") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(y = "Prespuesto en dólares", x = "Año") + 
+    scale_y_continuous(labels = numero_completo, transform = "log10")
+```
+
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = year, y = intgross_2013, color = binary) ) + 
+    geom_point() +
+     ggtitle("Películas según su recaudación internacional y año de producción \n ajustado a la inflación de 2013.") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(y = "Prespuesto en dólares", x = "Año") + 
+    scale_y_continuous(labels = numero_completo, transform = "log10")
+```
+
+#### Actividad 6: Haga una gráfica con funciones de {ggplot2} que muestre la composición de observaciones que pasaron, dudosamente, sólo hablaban de hombres, no hablaban entre sí y no hay mujeres.
+
+```{r}
+datos_bechdel |> 
+   dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = clean_test, y = budget_2013, color = binary) ) + 
+    geom_violin(aes(group = clean_test), alpha = 0.4) +
+     ggtitle("Películas según presupuesto ajustado a la inflación en 2013.") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(y = "Prespuesto en dólares") + 
+    scale_y_continuous(labels = numero_completo, transform = "log10")
+```
+```{r}
+datos_bechdel |> 
+   dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = clean_test, y = domgross_2013, color = binary) ) + 
+    geom_violin(aes(group = clean_test), alpha = 0.4) +
+     ggtitle("Películas según recaudación nacional (EE.UU.) \n ajustado a la inflación en 2013.") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(y = "Prespuesto en dólares") + 
+    scale_y_continuous(labels = numero_completo, transform = "log10")
+```
+```{r}
+datos_bechdel |> 
+   dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = clean_test, y = intgross_2013, color = binary) ) + 
+    geom_violin(aes(group = clean_test), alpha = 0.4) +
+     ggtitle("Películas según recaudación internacional \n ajustado a la inflación en 2013.") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(y = "Prespuesto en dólares") + 
+    scale_y_continuous(labels = numero_completo, transform = "log10")
+```
+#### Actividad 7: Haga una gráfica con funciones de {ggplot2} que muestre la composición de observaciones que pasaron, dudosamente, sólo hablaban de hombres, no hablaban entre sí y no hay mujeres, con respecto al año.
+
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = year, y = budget_2013, color = binary, shape = clean_test) ) + 
+    geom_point() +
+     ggtitle("Películas según su presupuesto y año de producción \n ajustado a la inflación en 2013.") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(y = "Prespuesto en dólares", x = "Año") + 
+    scale_y_continuous(labels = numero_completo, transform = "log10")
+```
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = year, y = domgross_2013, color = binary, shape = clean_test) ) + 
+    geom_point() +
+     ggtitle("Películas según su recaudación nacional (EE.UU.) y año de producción \n ajustado a la inflación en 2013.") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(y = "Prespuesto en dólares", x = "Año") + 
+    scale_y_continuous(labels = numero_completo, transform = "log10")
+```
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = year, y = intgross_2013, color = binary, shape = clean_test) ) + 
+    geom_point() +
+     ggtitle("Películas según su recaudación internacional y año de producción \n ajustado a la inflación en 2013.") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(y = "Prespuesto en dólares", x = "Año") + 
+    scale_y_continuous(labels = numero_completo, transform = "log10")
+```
+#### Actividad 8: Haga una gráfica con funciones de {ggplot2} que muestre la relación entre el presupuesto de la obra con la ganancia de la obra en función de si paso o no la prueba de Bechdel. ¿Puede hacer algún tipo de afirmación?
+
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(x = budget_2013, color = binary) ) + 
+    geom_point(aes(y=intgross_2013 + domgross_2013)) + 
+    scale_y_continuous(labels = numero_completo, transform = "log10") + 
+    scale_x_continuous(labels = numero_completo, transform = "log10") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(x = "Prespuesto en dólares", y = "Recaudación nacional e internacional en dólares") + 
+    ggtitle("Relación entre el prespuesto con las ganacias (recuadación nacional más internacional \n en función de la Prueba de Bechel") + 
+    geom_abline(intercept = 0, slope = 1)
+```
+De la gráfica de arriba, una buena cantidad de películas son rentables, es decir
+que se obtiene más dinero de la recaudación que del presupuesto sin importar la 
+prueba de Bechel. 
+
+
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary),
+                es_rentable = budget_2013 < domgross_2013 + intgross_2013) |>
+  dplyr::filter(!is.na(budget_2013) & !is.na(domgross_2013) & !is.na(intgross_2013)) |> # Solo hay 18 casos
+  dplyr::count(binary, es_rentable)
+```
+
+Del cuadro anterior, hay más películas que no pasan la prueba de Bechel y que son rentables. 
+
+De esto, solo se puede concluir que pasar la prueba de Bechel no representa una pérdida.
+
+
+#### Actividad 9: Haga dos gráficas adicionales con funciones de {ggplot2} que considere interesantes.
+
+1 - Hagamos una gráfica comparando el porcentaje de la rentabilidad de las películas, 
+es decir, que tanto se ganó en porcentaje de ambas recaudaciones respecto 
+a la inversión inicial (domgross_2013 + intgross_2013 / budget_2013).
+
+```{r}
+datos_bechdel |> 
+  dplyr::filter(!is.na(budget_2013) & !is.na(domgross_2013) & !is.na(intgross_2013)) |> # Solo hay 18 casos
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary),
+                rentabilidad = (domgross_2013 + intgross_2013) / budget_2013 ) |>
+   ggplot2::ggplot(aes(rentabilidad, fill = binary) ) + 
+    geom_density() +
+     ggtitle("Cantidad de películas según su \n recaudación nacional (EE.UU.) en 2013.") + 
+    labs(fill = "Prueba de Bechel") + 
+    labs(y = "Densidad", x = "Recaudación en porcentaje") + 
+    scale_x_continuous(labels = numero_completo, transform = "log10")
+``` 
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary),
+                rentabilidad = (domgross_2013 + intgross_2013) / budget_2013) |>
+  dplyr::filter(!is.na(budget_2013) & !is.na(domgross_2013) & !is.na(intgross_2013)) |> # Solo hay 18 casos
+  dplyr::group_by(binary) |>
+  dplyr::summarise(median(rentabilidad))
+```
+Dado que la gráfica nos muestran aparentes casos extremos, es preferible usar la mediana. 
+Bajo esta medidana, las películas que pasan la pruea de Bechel resultan ser más rentables. 
+
+
+2 - Queremos ver si pasando la prueba de Bechel, se obtiene mayor rentabilidad 
+con la recaudación internacional o nacional. 
+
+```{r}
+datos_bechdel |> 
+  dplyr::mutate(binary = dplyr::case_when(binary == "si_pasa" ~ "Pasa",
+                                          binary == "no_pasa" ~ "No pasa",
+                                          TRUE ~ binary)) |>
+  ggplot2::ggplot(aes(color = binary) ) + 
+    geom_point(aes(y=intgross_2013, x=domgross_2013)) + 
+    scale_y_continuous(labels = numero_completo, transform = "log10") + 
+    scale_x_continuous(labels = numero_completo, transform = "log10") + 
+    labs(color = "Prueba de Bechel") + 
+    labs(x = "Recaudación nacional en dólares", y = "Recaudación internacional en dólares") + 
+    ggtitle("Relación entre la recaudación nacional e internacional \n en función de la Prueba de Bechel") + 
+    geom_abline(intercept = 0, slope = 1)
+```
+
+Del gráfico anterior, notamos que no hay una diferencia significativa a las 
+recaudaciones respecto a si es internacional o nacional. 
+
+Sin embargo, del mismo gráfico, podemos ver que, en general, siempre se obtuvo una 
+mayor recaudación internacional que nacional. 

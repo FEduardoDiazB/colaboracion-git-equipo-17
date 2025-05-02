@@ -7,8 +7,9 @@ output: html_document
 # Integrantes:
 
 + Francisco Eduardo Díaz Barrios. Rol: Administrador
-+ Integrante 2. Rol: Erick Muñiz Morales
-+ Integrante 3. Rol: Colaborador 2
++ Erick Muñiz Morales. Rol: Colaborador 1 
++ Hendrix Roberto Olvera Barbecho. Rol: Colaborador 2
+
 
 ```{r}
 library(dplyr)
@@ -17,6 +18,7 @@ library(ggplot2)
 
 mis_datos <- readr::read_csv("datos_proyecto.csv")
 ```
+
 
 ### Instrucciones Colaborador 1: 
 
@@ -46,3 +48,29 @@ for (elemento in subconjunto) {
 }
 
 ```
+
+### Instrucciones Colaborador 2: 
+
+Desde su máquina crear chunks de código R en el archivo "proyecto_final.Rmd" (que obtuvo del Administrador) que calculen la media de x, la media de y, la desviación estándar de x, la desviación estándar de y, la correlación de Pearson entre x y y, PARA CADA SUBCONJUNTO, usando verbos de la librería {dplyr}. Debe corregir la línea author: "Equipo - n" con el número correcto de equipo y agregar los nombres completos de los integrantes en la sección de # Integrantes. Hacer commit y push del código al repositorio del administrador y hacer un pull request.
+
+```{r}
+mis_datos %>% 
+  dplyr::group_by(subconjunto) %>% 
+  dplyr::summarise(media_x = mean(x), 
+            media_y = mean(y),
+            dev_est_x = sd(x),
+            dev_est_y = sd(y),
+            cor_xy = cor(x,y,method = 'pearson'))
+```
+
+
+
+
+
+
+
+
+
+
+
+

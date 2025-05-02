@@ -10,6 +10,7 @@ output: html_document
 + Erick Muñiz Morales. Rol: Colaborador 1 
 + Hendrix Roberto Olvera Barbecho. Rol: Colaborador 2
 
+
 ```{r}
 library(dplyr)
 library(readr)
@@ -17,6 +18,40 @@ library(ggplot2)
 
 mis_datos <- readr::read_csv("datos_proyecto.csv")
 ```
+
+
+### Instrucciones Colaborador 1: 
+
+Desde su máquina crear chunks de código R en el archivo "proyecto_final.Rmd" (que obtuvo del Administrador) que calculen la media de x, la media de y, la desviación estándar de x, la desviación estándar de y, la correlación de Pearson entre x y y, PARA CADA SUBCONJUNTO, usando ciclos for. Hacer commit y push del código al repositorio del administrador y hacer un pull request.
+
+
+```{r}
+# Los separamos por subconjuntos
+subconjunto <- unique(mis_datos$subconjunto)
+
+for (elemento in subconjunto) {
+  datos_a_calcular <- mis_datos[mis_datos$subconjunto == elemento,]
+  datos_a_calcular$media_x <- mean(datos_a_calcular$x)
+  datos_a_calcular$media_y <- mean(datos_a_calcular$y)
+  datos_a_calcular$dev_x <- sd(datos_a_calcular$x)
+  datos_a_calcular$dev_y <- sd(datos_a_calcular$y)
+  
+  data_frame_elemento <- data.frame(subconjunto = c(elemento),
+                                    media_x = c(mean(datos_a_calcular$x)),
+                                    media_y = c(mean(datos_a_calcular$y)),
+                                    dev_x = c(sd(datos_a_calcular$x)),
+                                    dev_y = c(sd(datos_a_calcular$y)),
+                                    cor = c( cor(datos_a_calcular$x , datos_a_calcular$y, method = 'pearson' ) )
+                                    )
+  
+  print(data_frame_elemento)
+}
+
+```
+
+### Instrucciones Colaborador 2: 
+
+Desde su máquina crear chunks de código R en el archivo "proyecto_final.Rmd" (que obtuvo del Administrador) que calculen la media de x, la media de y, la desviación estándar de x, la desviación estándar de y, la correlación de Pearson entre x y y, PARA CADA SUBCONJUNTO, usando verbos de la librería {dplyr}. Debe corregir la línea author: "Equipo - n" con el número correcto de equipo y agregar los nombres completos de los integrantes en la sección de # Integrantes. Hacer commit y push del código al repositorio del administrador y hacer un pull request.
 
 ```{r}
 mis_datos %>% 
@@ -27,4 +62,15 @@ mis_datos %>%
             dev_est_y = sd(y),
             cor_xy = cor(x,y,method = 'pearson'))
 ```
+
+
+
+
+
+
+
+
+
+
+
 

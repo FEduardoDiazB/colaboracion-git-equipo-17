@@ -94,6 +94,10 @@ mis_datos %>% ggplot(aes(x=x, y=y, color=subconjunto_g)) +
 #ggsave("proyecto_final_modulo1_p1_e17.pdf", width = 8, height = 8)
 ```
 
+#### Comentario de colaborador 1: 
+
+Se puede notar que las propiedades de la estadistica descriptiva calculadas (promedio, mediana) son casi identicas pero al graficarlo la distribución de los datos de cada subconjunto son diferentes entre sí. 
+
 # Seccion 2
 
 ### Subsección 1 : Prueba de Bechdel
@@ -588,6 +592,7 @@ datos %>%
 Obtenga las 10 aerolíneas que han tenido el menor número de muertes. Haga una visualización que permita identificar a éstas. ¿Hay algún cambio en este top 10 antes y después del año 2000?
 
 En este top se tuvo lo esperado de cambios, sin embargo todos compartren que el número de fallecimientos es 0, después del año 2000 de 17 aerolineas se paso a 32 con cero fallecimientos, ademas que solo comparten 12 aerolineas en común.
+Excluyendo el caso donde son 0, tenemos que la única aerolínea que después del cambio de milenio que siguen presentando fallecimientos es TACA.  
 
 ```{r}
 datos %>% group_by(airline) %>%  
@@ -603,9 +608,29 @@ datos %>% group_by(airline) %>%
   slice_min(n = 10, order_by = fallecimientos_00_14, with_ties = TRUE)
 ```
 
+
+```{r}
+datos %>% group_by(airline) %>%  
+  dplyr::filter(fatalities_85_99 != 0 & fatalities_00_14 != 0) %>%
+  summarise(fallecimientos_tot = sum(fatalities_85_99 + fatalities_00_14)) %>% 
+  slice_min(n = 10, order_by = fallecimientos_tot, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  dplyr::filter(fatalities_85_99 != 0) %>%
+  summarise(fallecimientos_85_99 = sum(fatalities_85_99)) %>% 
+  slice_min(n = 10, order_by = fallecimientos_85_99, with_ties = TRUE)
+
+datos %>% group_by(airline) %>%  
+  dplyr::filter(fatalities_00_14 != 0) %>%
+  summarise(fallecimientos_00_14 = sum(fatalities_00_14)) %>% 
+  slice_min(n = 10, order_by = fallecimientos_00_14, with_ties = TRUE)
+```
+
+
 ```{r}
 datos %>% 
   dplyr::group_by(airline) %>% 
+  dplyr::filter(fatalities_85_99 != 0 & fatalities_00_14 != 0) %>%
   dplyr::summarise(fallecimientos_tot = sum(fatalities_85_99 + fatalities_00_14)) %>% 
   slice_min(n = 10, order_by = fallecimientos_tot, with_ties = TRUE) %>%
   ggplot() +
@@ -615,6 +640,7 @@ datos %>%
 
 datos %>% 
   dplyr::group_by(airline) %>% 
+  dplyr::filter(fatalities_85_99 != 0) %>%
   dplyr::summarise(fallecimientos_tot = sum(fatalities_85_99)) %>% 
   slice_min(n = 10, order_by = fallecimientos_tot, with_ties = TRUE) %>%
   ggplot() +
@@ -624,6 +650,7 @@ datos %>%
 
 datos %>% 
   dplyr::group_by(airline) %>% 
+  dplyr::filter(fatalities_00_14 != 0) %>%
   dplyr::summarise(fallecimientos_tot = sum(fatalities_00_14)) %>% 
   slice_min(n = 10, order_by = fallecimientos_tot, with_ties = TRUE) %>%
   ggplot() +
@@ -631,6 +658,9 @@ datos %>%
   labs(title = "Fallecimientos 2000-2014", x = "Aerolineas", y = "Fallecimientos") + 
   theme(plot.title.position = "plot")
 ```
+
+
+
 
 ### Subsección 3: Calidad del café
 
